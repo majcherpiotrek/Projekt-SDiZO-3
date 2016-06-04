@@ -1,6 +1,9 @@
 #pragma once
 #include <iostream>
 #include <sstream>
+#include <fstream>
+
+#include "FileNotFoundException.h"
 
 struct Item {
 	unsigned int weight;
@@ -20,24 +23,36 @@ private:
 			it = _it;
 			next = nullptr;
 		}
-		~sackElement() {}
+		~sackElement() {
+ 			if (this->next != nullptr)
+				delete next;
+		}
 	};
+	
 	unsigned int capacity;
 	int packed_weight;
 	int packed_value;
+	
 	sackElement* sack;
+	Item* itemsSet;
+	int itemsSet_size;
 
-	void quickSort(Item* tab, int left, int right);
-	int partition(Item* tab, int left, int right);
+	void quickSort(Item* tab, int left, int right, bool ratio_mode);
+	int partition(Item* tab, int left, int right, bool ratio_mode);
 	void packItem(Item _it);
 public:
 	Knapsack();
 	Knapsack(int _capacity);
 	~Knapsack();
 
-	bool greedy_pack(Item *items, unsigned int n);
+	void loadItemsSet(std::string fileName);
+	void loadItemsSet(Item* items, unsigned int n);
+	
+	bool greedy_pack(bool ratio_mode);
+	bool brute_force_pack();
 	
 	std::string toString();
+	void saveToFile(std::string fileName);
 	friend std::ostream & operator << (std::ostream & output, Knapsack & knapsack);
 
 };

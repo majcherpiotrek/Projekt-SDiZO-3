@@ -2,27 +2,27 @@
 
 
 
-void Knapsack::quickSort(Item * tab, int left, int right)
+void Knapsack::quickSort(Item * tab, int left, int right, bool ratio_mode)
 {
 	if (left >= right)
 		return;
 
-	int m = partition(tab, left, right);
-	quickSort(tab, left, m);
-	quickSort(tab, m + 1, right);
+	int m = partition(tab, left, right, ratio_mode);
+	quickSort(tab, left, m, ratio_mode);
+	quickSort(tab, m + 1, right, ratio_mode);
 
 	return;
 }
 
-int Knapsack::partition(Item * tab, int left, int right)
+int Knapsack::partition(Item * tab, int left, int right, bool ratio_mode)
 {
 	Item pivot = tab[left];
 	int l = left, r = right;
 	while (true) 
 	{
 		
-		while ( tab[l].ratio > pivot.ratio ) l++;
-		while (tab[r].ratio < pivot.ratio) r--;
+		while ( ((ratio_mode) ? tab[l].ratio : tab[l].value)  > ((ratio_mode) ? pivot.ratio : pivot.value) ) l++;
+		while ( ((ratio_mode) ? tab[r].ratio : tab[r].value) < ((ratio_mode) ? pivot.ratio : pivot.value)) r--;
 
 		if (l < r)
 		{
@@ -65,13 +65,104 @@ Knapsack::Knapsack(int _capacity)
 	packed_weight = 0;
 	packed_value = 0;
 	sack = nullptr;
+	itemsSet = nullptr;
 }
 
 
 Knapsack::~Knapsack()
 {
 	if (sack != nullptr)
-		delete[] sack;
+		delete sack;
+	if (itemsSet != nullptr)
+		delete[] itemsSet;
+}
+
+void Knapsack::loadItemsSet(std::string fileName)
+{
+	/* Sprawdzam, czy w nazwie pliku brakuje rozszerzenia ".txt", jeœli tak to je dodajê.*/
+	if (fileName[fileName.length() - 1] != *"t" ||
+		fileName[fileName.length() - 2] != *"x" ||
+		fileName[fileName.length() - 3] != *"t" ||
+		fileName[fileName.length() - 4] != *".")
+		fileName.append(".txt");
+
+	/* Tworzê strumieñ do odczytu danych z pliku.
+	Otwieram go w trybie "std::ios::in", czyli do odczytu.*/
+	std::fstream input;
+	input.open(fileName, std::ios::in);
+
+	/* Sprawdzam, czy powiod³o siê otwarcie pliku.*/
+	if (!input.good())
+		throw FileNotFoundException("\nNie ma takiego pliku!");
+
+	std::string inputLine;
+
+	getline(input, inputLine);
+
+	std::istringstream* iss;
+	iss = new std::istringstream(inputLine);
+
+	/* Odczytanie linii danych zawieraj¹cej informacje
+	o liczbie krawêdzi oraz wierzcho³ków grafu*/
+
+	try {
+		*iss >> this->capacity; //wczytanie liczby krawêdzi
+		*iss >> this->itemsSet_size; // oraz wierzcho³ków
+	}
+	catch (std::exception ex) {
+		std::cerr << "Blad podczas wczytywania danych z pliku:\n" << ex.what();
+		return;
+	}
+	delete iss;
+
+	if (sack != nullptr) 
+	{
+		delete sack;
+		sack = nullptr;
+	}
+		
+	if (itemsSet != nullptr)
+	{
+		delete[] itemsSet;
+		itemsSet = nullptr;
+	}
+		
+
+	itemsSet = new Item[itemsSet_size];
+
+	packed_value = 0;
+	packed_weight = 0;
+
+	for (int i = 0; i < itemsSet_size; i++)
+	{
+		getline(input, inputLine);
+
+		iss = new std::istringstream(inputLine);
+
+		try {
+			*iss >> itemsSet[i].weight;
+			*iss >> itemsSet[i].value;
+		}
+		catch (std::exception ex) {
+			std::cerr << "Blad podczas wczytywania danych z pliku:\n" << ex.what();
+			return;
+		}
+
+		itemsSet[i].ratio = (double)itemsSet[i].value / (double)itemsSet[i].weight;
+
+		delete iss;
+	}
+	return;
+}
+
+void Knapsack::loadItemsSet(Item * items, unsigned int n)
+{
+	itemsSet_size = n;
+	itemsSet = new Item[itemsSet_size];
+
+	memcpy(itemsSet, items, itemsSet_size*sizeof(Item));
+
+	return;
 }
 
 /*
@@ -79,32 +170,161 @@ Metoda realizuj¹ca algorytm zach³anny dla problemu plecakowego.
 Wylicza wartoœæ jednostkow¹ dla ka¿dego elementu i wed³ug niej
 ustawia je w kolejkê. Pakuje do plecaka kolejne elementy z kolejki,
 dopóki plecak nie zostanie zape³niony.*/
-bool Knapsack::greedy_pack(Item * items, unsigned int n)
+bool Knapsack::greedy_pack(bool ratio_mode)
 {
-	Item* toPack = new Item[n];
+	if (itemsSet == nullptr)
+	{
+		std::cout << "Blad! Najpierw musisz zaladowac dane elementow do zapakowania!";
+		return false;
+	}
 
-	memcpy(toPack, items, n*sizeof(Item));
-
-	quickSort(toPack, 0, n - 1);
+	quickSort(itemsSet, 0, itemsSet_size-1, ratio_mode);
 
 	
 	bool elements_packed = false;
 	
-	for (int i = 0; i < n; i++)
+	for (int i = 0; i < itemsSet_size; i++)
 	{
 		if (packed_weight == capacity)
 			break;
 		
-		if (toPack[i].weight <= capacity - packed_weight)
+		if (itemsSet[i].weight <= capacity - packed_weight)
 		{
-			packItem(toPack[i]);
-			packed_weight += toPack[i].weight;
-			packed_value += toPack[i].value;
+			packItem(itemsSet[i]);
+			packed_weight += itemsSet[i].weight;
+			packed_value += itemsSet[i].value;
 			elements_packed = true;
 		}
 	}
-	delete[] toPack;
 	return elements_packed;
+}
+
+bool Knapsack::brute_force_pack()
+{
+	if (itemsSet == nullptr)
+	{
+		std::cout << "Blad! Najpierw musisz zaladowac dane elementow do zapakowania!";
+		return false;
+	}
+
+	if (itemsSet_size >= 64)
+	{
+		std::cout << "Blad! Zbyt wiele przedmiotow do zapakowania. Wiecej niz 2^63 - 1 mozliwosci dla algorytmu brute_force\nprzekracza zakres long long int'a!\n";
+		return false;
+	}
+	unsigned long long int permutations = (1 << itemsSet_size);
+	
+	unsigned long long int currentBest = 0;
+	int current_best_value = 0;
+	int current_best_weight = 0;
+	
+	bool anything_fits = false;
+	
+
+	for (unsigned long long int i  = 0; i < permutations; i++) {
+	/*
+	Iterujemy po wszystkich mo¿liwoœciach. Ka¿dy bit zmiennej
+	permutations odpowiada jednemu elementowi zbioru przedmiotów.
+	Jedynka oznacza, ¿e do³¹czamy dany przedmiot, zero, ¿e nie.
+	*/
+		int sum_weight = 0;
+		int sum_value = 0;
+		
+		bool fits = false;
+		
+		/*Przechodzimy po wszystkich przedmiotach, ¿eby sprawdziæ, czy nale¿¹ do danej kombinacji*/
+		for (int k = 0; k < itemsSet_size; k++)
+		{
+			unsigned long long int current_perm = i;
+			/*
+			Sprawdzamy przynale¿noœæ
+			-> musimy dostaæ siê do k-tego bitu permutations, 
+			wiêc trzeba wykonaæ k razy przesuniêcie bitowe 
+			w prawo, aby otrzymaæ ten bit na najni¿szej pozycji
+	
+			Za pomoc¹ AND sprawdzamy, czy ten bit to 0 czy 1, porównuj¹c go z 1
+			(jeœli bêdzie jeden to w wyniku bitowego iloczynu logicznego dostaniemy
+			1, w innym wypadku zero)
+			1000010101000000001
+			0000000000000000001
+			-------------------
+			0000000000000000001
+		
+			Jeœli równe 0 to znaczy, ¿e przedmiot nie nale¿y do kombinacji i kontynuujemy pêtle*/
+			if (((current_perm >> k) & 1) != 1)
+			{
+				sum_weight = 0;
+				sum_value = 0;
+				continue;
+			}
+				
+
+			sum_weight += itemsSet[k].weight;
+			sum_value += itemsSet[k].value;
+			
+			if (sum_weight > this->capacity) 
+			{
+				fits = false;
+				break;
+			}
+
+			fits = true;
+		}
+		
+		/*Jeœli suma wag przedmiotów kombinacji wiêksza ni¿ pojemnoœæ plecaka to sprawdzamy kolejn¹*/
+		if (!fits)
+			continue;
+		
+		anything_fits = true;
+
+		if (sum_value > current_best_value)
+		{
+			current_best_value = sum_value;
+			current_best_weight = sum_weight;
+			currentBest = i;
+		}
+	}
+
+	if (!anything_fits)
+		return false;
+
+	/*Przechodzimy po wszystkich przedmiotach, ¿eby sprawdziæ, czy nale¿¹ do danej kombinacji*/
+	for (int k = 0; k < itemsSet_size; k++)
+	{
+		unsigned long long int current_perm = currentBest;
+		/*
+		Sprawdzamy przynale¿noœæ
+		-> musimy dostaæ siê do k-tego bitu permutations,
+		wiêc trzeba wykonaæ k razy przesuniêcie bitowe
+		w prawo, aby otrzymaæ ten bit na najni¿szej pozycji
+		*/
+		current_perm = current_perm >> k;
+
+		/*
+		Za pomoc¹ AND sprawdzamy, czy ten bit to 0 czy 1, porównuj¹c go z 1
+		(jeœli bêdzie jeden to w wyniku bitowego iloczynu logicznego dostaniemy
+		1, w innym wypadku zero)
+		1000010101000000001
+		0000000000000000001
+		-------------------
+		0000000000000000001
+		*/
+
+		current_perm = current_perm & 1;
+
+		/*
+		Jeœli równe 0 to znaczy, ¿e przedmiot nie nale¿y do kombinacji i kontynuujemy pêtle*/
+		if (!current_perm)
+			continue;
+
+		/*Dodajemy przedmiot do rozwi¹zania*/
+
+		this->packItem(itemsSet[k]);
+		packed_weight += itemsSet[k].weight;
+		packed_value += itemsSet[k].value;
+	}
+	
+	return true;
 }
 
 std::string Knapsack::toString()
@@ -115,14 +335,14 @@ std::string Knapsack::toString()
 	sackElement* ptr = sack;
 	if (ptr == nullptr)
 	{
-		text.append("Plecak jest pusty!");
+		text.append("\nPlecak jest pusty!");
 		return text;
 	}
 	else {	
 		
-		text.append("Plecak (Wartosc = ");
+		text.append("\nPlecak (wartosc = ");
 		
-		oss << packed_value << ", " << packed_weight << "/" << capacity <<"):\n";
+		oss << packed_value << ", wypelnienie " << packed_weight << "/" << capacity <<"):\n";
 		text.append(oss.str());
 		
 		oss.str(std::string());
@@ -140,6 +360,21 @@ std::string Knapsack::toString()
 	}
 
 	return text;
+}
+
+void Knapsack::saveToFile(std::string fileName)
+{
+	if (fileName[fileName.length() - 1] != *"t" ||
+		fileName[fileName.length() - 2] != *"x" ||
+		fileName[fileName.length() - 3] != *"t" ||
+		fileName[fileName.length() - 4] != *".")
+		fileName.append(".txt");
+	std::fstream output;
+	output.open(fileName, std::ios::app);
+	
+	output << this->toString();
+	output.close();
+	return;
 }
 
 
