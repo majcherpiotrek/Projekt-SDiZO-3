@@ -3,7 +3,7 @@
 
 int main() {
 
-	RandDataGen gen = *(new RandDataGen(100, 3, 70, 100));
+	RandDataGen gen = *(new RandDataGen(50, 28, 30, 100));
 	gen.saveToFile("plecaczek");
 
 	Knapsack plecak = *(new Knapsack());

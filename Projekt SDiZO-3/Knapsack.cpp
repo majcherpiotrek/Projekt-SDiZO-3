@@ -252,11 +252,8 @@ bool Knapsack::brute_force_pack()
 		
 			Jeœli równe 0 to znaczy, ¿e przedmiot nie nale¿y do kombinacji i kontynuujemy pêtle*/
 			if (((current_perm >> k) & 1) != 1)
-			{
-				sum_weight = 0;
-				sum_value = 0;
 				continue;
-			}
+
 				
 
 			sum_weight += itemsSet[k].weight;
@@ -292,29 +289,8 @@ bool Knapsack::brute_force_pack()
 	for (int k = 0; k < itemsSet_size; k++)
 	{
 		unsigned long long int current_perm = currentBest;
-		/*
-		Sprawdzamy przynale¿noœæ
-		-> musimy dostaæ siê do k-tego bitu permutations,
-		wiêc trzeba wykonaæ k razy przesuniêcie bitowe
-		w prawo, aby otrzymaæ ten bit na najni¿szej pozycji
-		*/
-		current_perm = current_perm >> k;
-
-		/*
-		Za pomoc¹ AND sprawdzamy, czy ten bit to 0 czy 1, porównuj¹c go z 1
-		(jeœli bêdzie jeden to w wyniku bitowego iloczynu logicznego dostaniemy
-		1, w innym wypadku zero)
-		1000010101000000001
-		0000000000000000001
-		-------------------
-		0000000000000000001
-		*/
-
-		current_perm = current_perm & 1;
-
-		/*
-		Jeœli równe 0 to znaczy, ¿e przedmiot nie nale¿y do kombinacji i kontynuujemy pêtle*/
-		if (!current_perm)
+		
+		if (((current_perm >> k) & 1) != 1)
 			continue;
 
 		/*Dodajemy przedmiot do rozwi¹zania*/
