@@ -103,11 +103,11 @@ void Knapsack::loadItemsSet(std::string fileName)
 	iss = new std::istringstream(inputLine);
 
 	/* Odczytanie linii danych zawieraj¹cej informacje
-	o liczbie krawêdzi oraz wierzcho³ków grafu*/
+	o pojemnoœci plecaka i liczebnoœci zbioru przedmiotów do spakowania*/
 
 	try {
-		*iss >> this->capacity; //wczytanie liczby krawêdzi
-		*iss >> this->itemsSet_size; // oraz wierzcho³ków
+		*iss >> this->capacity; //wczytanie pojemnoœci plecaka
+		*iss >> this->itemsSet_size; // oraz liczebnoœci zbioru
 	}
 	catch (std::exception ex) {
 		std::cerr << "Blad podczas wczytywania danych z pliku:\n" << ex.what();
@@ -157,8 +157,23 @@ void Knapsack::loadItemsSet(std::string fileName)
 
 void Knapsack::loadItemsSet(Item * items, unsigned int n)
 {
+	if (sack != nullptr)
+	{
+		delete sack;
+		sack = nullptr;
+	}
+
+	if (itemsSet != nullptr)
+	{
+		delete[] itemsSet;
+		itemsSet = nullptr;
+	}
+
 	itemsSet_size = n;
 	itemsSet = new Item[itemsSet_size];
+
+	packed_value = 0;
+	packed_weight = 0;
 
 	memcpy(itemsSet, items, itemsSet_size*sizeof(Item));
 
