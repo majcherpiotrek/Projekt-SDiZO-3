@@ -1,10 +1,10 @@
 #include "Knapsack.h"
-#include "RandDataGen.h"
+
 #include "Towns.h"
 
 int main() {
 
-	RandDataGen gen = *(new RandDataGen(40, 10, 30, 100));
+	RandKnapsackDataGen gen = *(new RandKnapsackDataGen(40, 10, 30, 100));
 	gen.saveToFile("plecaczek");
 
 	Knapsack plecak = *(new Knapsack());
@@ -33,11 +33,28 @@ int main() {
 		plecak.saveToFile("plecaczek");
 	}
 	
+	RandGraphGen graphgen = *(new RandGraphGen());
 	Towns miasta = *(new Towns());
-	miasta.loadTownsMap("mapa");
-
+	miasta.loadTownsMap(graphgen.generate(5, 10), 5);
+	graphgen.saveToFile("mapa1");
+	
 	std::cout << std::endl << std::endl;
-	std::cout << miasta.toString();
+	std::cout << miasta;
+	miasta.saveToFile("mapa");
+
+	miasta.loadTownsMap("mapa1");
+	std::cout << std::endl << std::endl;
+	std::cout << miasta;
+	miasta.saveToFile("mapa1");
+
+	int* droga = miasta.greedy(0);
+
+	if (droga)
+	{
+		std::cout << std::endl;
+		for (int i = 0; i < 5; i++)
+			std::cout << droga[i] << std::endl;
+	}
 
 	std::cin.get();
 	return 0;

@@ -2,7 +2,7 @@
 #include <time.h>
 #include <string>
 #include<fstream>
-class RandDataGen
+class RandKnapsackDataGen
 {
 private:
 
@@ -15,8 +15,8 @@ private:
 	unsigned int weights_range;
 	unsigned int values_range;
 public:
-	RandDataGen(unsigned int _knapsack_capacity, unsigned int _items_number, unsigned int _weights_range, unsigned int _values_range);
-	~RandDataGen();
+	RandKnapsackDataGen(unsigned int _knapsack_capacity, unsigned int _items_number, unsigned int _weights_range, unsigned int _values_range);
+	~RandKnapsackDataGen();
 
 	void generateNewItemsSet();
 	void generateNewItemsSet(unsigned int _knapsack_capacity);

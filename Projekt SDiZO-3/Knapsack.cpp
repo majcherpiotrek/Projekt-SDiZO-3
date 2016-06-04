@@ -363,7 +363,7 @@ void Knapsack::saveToFile(std::string fileName)
 	std::fstream output;
 	output.open(fileName, std::ios::app);
 	
-	output << this->toString();
+	output << *this;
 	output.close();
 	return;
 }

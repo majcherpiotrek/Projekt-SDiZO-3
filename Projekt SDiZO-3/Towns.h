@@ -4,15 +4,16 @@
 #include <sstream>
 
 #include "FileNotFoundException.h"
+#include "RandGraphGen.h"
 
 class Towns
 {
 private:
 
 	
-	unsigned int towns_number;
+	int towns_number;
 
-	unsigned int** neighboursMatrix;
+	int** neighboursMatrix;
 	
 	
 
@@ -22,6 +23,12 @@ public:
 	~Towns();
 
 	void loadTownsMap(std::string fileName);
+	void loadTownsMap(int** neigbours_matrix, int towns_num);
+	void saveToFile(std::string fileName);
+
+	int* greedy(int start);
+	
 	std::string toString();
+	friend std::ostream & operator << (std::ostream & output, Towns & mapa);
 };
 

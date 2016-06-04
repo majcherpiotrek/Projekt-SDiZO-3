@@ -4,6 +4,7 @@
 #include <fstream>
 
 #include "FileNotFoundException.h"
+#include "RandKnapsackDataGen.h"
 
 struct Item {
 	unsigned int weight;

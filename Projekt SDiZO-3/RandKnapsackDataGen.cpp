@@ -1,6 +1,6 @@
-#include "RandDataGen.h"
+#include "RandKnapsackDataGen.h"
 
-RandDataGen::RandDataGen(unsigned int _knapsack_capacity, unsigned int _items_number, unsigned int _weights_range, unsigned int _values_range)
+RandKnapsackDataGen::RandKnapsackDataGen(unsigned int _knapsack_capacity, unsigned int _items_number, unsigned int _weights_range, unsigned int _values_range)
 {
 	knapsack_capacity = _knapsack_capacity;
 
@@ -16,11 +16,11 @@ RandDataGen::RandDataGen(unsigned int _knapsack_capacity, unsigned int _items_nu
 	return;
 }
 
-RandDataGen::~RandDataGen()
+RandKnapsackDataGen::~RandKnapsackDataGen()
 {
 }
 
-void RandDataGen::generateNewItemsSet()
+void RandKnapsackDataGen::generateNewItemsSet()
 {
 	srand(time(NULL));
 
@@ -32,17 +32,17 @@ void RandDataGen::generateNewItemsSet()
 	return;
 }
 
-void RandDataGen::generateNewItemsSet(unsigned int _knapsack_capacity)
+void RandKnapsackDataGen::generateNewItemsSet(unsigned int _knapsack_capacity)
 {
 	generateNewItemsSet(_knapsack_capacity, items_number, weights_range, values_range);
 }
 
-void RandDataGen::generateNewItemsSet(unsigned int _knapsack_capacity, unsigned int _items_number)
+void RandKnapsackDataGen::generateNewItemsSet(unsigned int _knapsack_capacity, unsigned int _items_number)
 {
 	generateNewItemsSet(_knapsack_capacity, _items_number, weights_range, values_range);
 }
 
-void RandDataGen::generateNewItemsSet(unsigned int _knapsack_capacity, unsigned int _items_number, unsigned int _weights_range, unsigned int _values_range)
+void RandKnapsackDataGen::generateNewItemsSet(unsigned int _knapsack_capacity, unsigned int _items_number, unsigned int _weights_range, unsigned int _values_range)
 {
 	if (items_number != _items_number)
 	{
@@ -64,7 +64,7 @@ void RandDataGen::generateNewItemsSet(unsigned int _knapsack_capacity, unsigned 
 	return;
 }
 
-void RandDataGen::saveToFile(std::string fileName)
+void RandKnapsackDataGen::saveToFile(std::string fileName)
 {
 	if (fileName[fileName.length() - 1] != *"t" ||
 		fileName[fileName.length() - 2] != *"x" ||

@@ -73,11 +73,11 @@ void Towns::loadTownsMap(std::string fileName)
 	
 
 	/*Utworzenie nowej macierzy s¹siedztwa*/
-	neighboursMatrix = new unsigned int*[towns_number];
+	neighboursMatrix = new int*[towns_number];
 
 	for (int i = 0; i < towns_number; i++)
 	{
-		neighboursMatrix[i] = new unsigned int[towns_number];
+		neighboursMatrix[i] = new int[towns_number];
 
 		getline(input, inputLine);
 
@@ -100,6 +100,102 @@ void Towns::loadTownsMap(std::string fileName)
 		delete iss;
 	}
 	return;
+}
+
+void Towns::loadTownsMap(int ** neigbours_matrix, int towns_num)
+{
+	if (neigbours_matrix == nullptr)
+		return;
+	
+	if (neighboursMatrix != nullptr)
+	{
+		for (int i = 0; i < towns_number; i++)
+		{
+			if (neighboursMatrix[i] != nullptr)
+				delete[] neighboursMatrix[i];
+		}
+
+		delete[] neighboursMatrix;
+	}
+
+	towns_number = towns_num;
+	neighboursMatrix = new int*[towns_number];
+
+	for (int i = 0; i < towns_number; i++)
+	{
+		neighboursMatrix[i] = new int[towns_num];
+		memcpy(neighboursMatrix[i], neigbours_matrix[i], towns_number*sizeof(int));
+	}
+	
+}
+
+void Towns::saveToFile(std::string fileName)
+{
+	if (fileName[fileName.length() - 1] != *"t" ||
+		fileName[fileName.length() - 2] != *"x" ||
+		fileName[fileName.length() - 3] != *"t" ||
+		fileName[fileName.length() - 4] != *".")
+		fileName.append(".txt");
+	std::fstream output;
+	output.open(fileName, std::ios::app);
+
+	output << *this;
+	output.close();
+	return;
+}
+
+int* Towns::greedy(int start)
+{
+	if (start < 0 || start >= towns_number)
+		throw new IndexOutOfBoundsException("\nNie ma miasta o takim numerze!\n");
+
+	/*Tablica odwiedzonych*/
+	bool* visited = new bool[towns_number];
+	for (int i = 0; i < towns_number; i++)
+		visited[i] = false;
+
+	/*Tablica na wynik*/
+	int* result = new int[towns_number];
+	for (int i = 0; i < towns_number; i++)
+		result[i] = -1;
+
+	visited[start] = true;
+	result[0] = start;
+
+	int currentTown = start;
+
+	/*W co najwy¿ej N-1 krokach dostaniemy rozwi¹zanie*/
+	for (int i = 1; i < towns_number; i++)
+	{
+		
+		int shortest_dist = INT_MAX;
+		int next_town = -1;
+
+		for (int k = 0; k < towns_number; k++)
+		{
+			if (currentTown == k || visited[k] == true)
+				continue;
+
+			if (neighboursMatrix[currentTown][k] < shortest_dist)
+			{
+				next_town = k;
+				shortest_dist = neighboursMatrix[currentTown][k];
+			}
+		}
+
+		visited[next_town] = true;
+		currentTown = next_town;
+		result[i] = currentTown;
+	}
+
+	/*Sprawdzenie, czy wszystkie miasta odwiedzone*/
+	for (int i = 0; i < towns_number; i++)
+	{
+		if (!visited[i])
+			return nullptr;
+	}
+
+	return result;
 }
 
 std::string Towns::toString()
@@ -157,3 +253,8 @@ std::string Towns::toString()
 	return text;
 }
 
+std::ostream & operator<<(std::ostream & output, Towns & mapa)
+{
+	output << mapa.toString();
+	return output;
+}
