@@ -10,13 +10,12 @@ class Towns
 {
 private:
 
-	
 	int towns_number;
 
 	int** neighboursMatrix;
 	
+	long long int silnia(int n);
 	
-
 public:
 	
 	Towns();
@@ -27,6 +26,7 @@ public:
 	void saveToFile(std::string fileName);
 
 	int* greedy(int start);
+	int* brute_force();
 	
 	std::string toString();
 	friend std::ostream & operator << (std::ostream & output, Towns & mapa);

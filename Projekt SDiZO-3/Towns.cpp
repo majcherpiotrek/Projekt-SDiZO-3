@@ -2,6 +2,16 @@
 
 
 
+long long int Towns::silnia(int n)
+{
+	long long int result = n;
+	
+	for (int i = 0; i < n;i++)
+		result = result*(n - i);
+	
+	return result;
+}
+
 Towns::Towns()
 {
 	neighboursMatrix = nullptr;
@@ -197,6 +207,25 @@ int* Towns::greedy(int start)
 
 	return result;
 }
+
+int * Towns::brute_force()
+{
+	/*Liczba wszystkich permutacji zbioru miast*/
+	long long permutations = silnia(towns_number);
+
+	int* cities = new int[towns_number];
+	for (int i = 0; i < towns_number; i++)
+		cities[i] = i;
+	int counter = 0;
+	for (int i = 0; i < towns_number; i++)
+	{
+		;
+	}
+
+	
+	return nullptr;
+}
+
 
 std::string Towns::toString()
 {
