@@ -227,7 +227,7 @@ bool Knapsack::brute_force_pack()
 		std::cout << "Blad! Zbyt wiele przedmiotow do zapakowania. Wiecej niz 2^63 - 1 mozliwosci dla algorytmu brute_force\nprzekracza zakres long long int'a!\n";
 		return false;
 	}
-	unsigned long long int permutations = (1 << itemsSet_size);
+	unsigned long long int combinations = (1 << itemsSet_size);
 	
 	unsigned long long int currentBest = 0;
 	int current_best_value = 0;
@@ -236,7 +236,7 @@ bool Knapsack::brute_force_pack()
 	bool anything_fits = false;
 	
 
-	for (unsigned long long int i  = 0; i < permutations; i++) {
+	for (unsigned long long int i  = 0; i < combinations; i++) {
 	/*
 	Iterujemy po wszystkich mo¿liwoœciach. Ka¿dy bit zmiennej
 	permutations odpowiada jednemu elementowi zbioru przedmiotów.

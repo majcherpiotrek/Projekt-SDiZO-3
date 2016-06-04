@@ -1,15 +1,42 @@
 #include "Towns.h"
 
 
-
-long long int Towns::silnia(int n)
+/*Metoda znajduj¹ca rekurencyjnie wszystkie permutacje zbioru num_elements elementów*/
+void Towns::computePermutations(int k, int * Perm, int num_elements, int ** Values, int * current_min, int * Result)
 {
-	long long int result = n;
-	
-	for (int i = 0; i < n;i++)
-		result = result*(n - i);
-	
-	return result;
+	/*Jeœli k == 0 to znaczy, ¿e znaleŸliœmy permutacjê zbioru*/
+	if (k == 0) 
+	{
+		int curr_val = 0;
+
+		for (int i = 0; i < num_elements; i++)
+			if (i < num_elements - 1)
+				curr_val += Values[Perm[i]][Perm[i + 1]];
+
+		if (curr_val < *current_min)
+		{
+			*current_min = curr_val;
+			for (int i = 0; i < num_elements; i++)
+				Result[i] = Perm[i];
+		}
+	}
+	else
+	{
+		/*Szukamy permutacji zaczynaj¹cych siê na i do k*/
+		for (int i = 0; i <= k; i++)
+		{
+			/*Wrzucamy i na koniec, aby szukaæ permutacji zbioru, nie zawieraj¹cego i*/
+			swap(Perm + i, Perm + k);
+
+			/*Szukamy wszystkich permutacji zbioru o jeden mniejszego (bez i), poniewa¿ wszystkie
+			permutacje zaczynaj¹ce siê na i to bêdzie kombinacja i oraz ka¿dej z permutacji wyliczonych poni¿ej.
+			k-1 mówi o tym, do którego elementu szukamy permutacji, czyli inaczej jaki jest rozmiar zbioru. */
+			computePermutations(k - 1, Perm, num_elements, Values, current_min, Result);
+
+			/*Wracamy do stanu pocz¹tkowego*/
+			swap(Perm + i, Perm + k);
+		}
+	}
 }
 
 Towns::Towns()
@@ -210,20 +237,20 @@ int* Towns::greedy(int start)
 
 int * Towns::brute_force()
 {
-	/*Liczba wszystkich permutacji zbioru miast*/
-	long long permutations = silnia(towns_number);
+	int* result = new int[towns_number];
 
-	int* cities = new int[towns_number];
-	for (int i = 0; i < towns_number; i++)
-		cities[i] = i;
-	int counter = 0;
-	for (int i = 0; i < towns_number; i++)
-	{
-		;
-	}
+	/*Tabela z indeksami do robienia permutacji*/
+	int* permutations = new int[towns_number];
 
-	
-	return nullptr;
+	for (int i = 0; i < towns_number; i++)
+		permutations[i] = i;
+
+	/*Bêdzie przechowywa³o informacje o aktualnie najlepszym wyniku*/
+	int minValue = INT_MAX;
+
+	computePermutations(towns_number - 1, permutations, towns_number, neighboursMatrix, &minValue, result);
+
+	return result;
 }
 
 

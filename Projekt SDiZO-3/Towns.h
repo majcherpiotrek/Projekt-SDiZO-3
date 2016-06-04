@@ -14,8 +14,13 @@ private:
 
 	int** neighboursMatrix;
 	
-	long long int silnia(int n);
-	
+	void swap(int* a, int* b) {
+		int buf = *a;
+		*a = *b;
+		*b = buf;
+		return;
+	}
+	void computePermutations(int k, int* Perm, int num_elements, int** Values, int* current_min, int* Result);
 public:
 	
 	Towns();
