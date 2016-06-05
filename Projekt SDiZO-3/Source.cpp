@@ -1,6 +1,6 @@
 #include "Knapsack.h"
-
 #include "Towns.h"
+#include "Menu.h"
 
 #include <Windows.h>
 
@@ -143,22 +143,20 @@ void run_tests_voyager() {
 	
 	LARGE_INTEGER countStart, countEnd;
 
-	const int n = 6;
-	int tests = 1;
+	const int n = 5;
+	int tests = 10;
 
 	long double bruteWynikiAvg[n];
 	long double greedyWynikiAvg[n];
-	long double greedyWynikiAvg2[n];
 
 	int values_range = 20;
-	int N_brute[n] = {  5, 8, 10, 11, 12, 13 };
-	int N[n] = { 5, 50, 100, 500, 1000, 10000 };
+	int N_brute[n] = {  5, 8, 10, 11, 12 };
+	int N[n] = { 10, 50, 100, 200, 500 };
 
 	for (int i = 0; i < n; i++)
 	{
 			bruteWynikiAvg[i] = 0;
 			greedyWynikiAvg[i] = 0;	
-			greedyWynikiAvg2[i] = 0;
 	}
 
 	RandGraphGen gen = *(new RandGraphGen());
@@ -166,7 +164,7 @@ void run_tests_voyager() {
 
 	for (int i = 0; i < n; i++)
 	{
-		if (i  == 4)
+		if (i == 3)
 			tests = 10;
 		if (i == 5)
 			tests = 1;
@@ -200,36 +198,26 @@ void run_tests_voyager() {
 
 				delete[] wynik;
 
-				/*pomiar*/
-				countStart = startTimer();
-				wynik = towns.greedy(0);
-				countEnd = endTimer();
-				/*pomiar*/
-				if (!wynik) {
-					throw new IndexOutOfBoundsException("Incorrect result for salesman greedy.");
-				}
-				else
-					greedyWynikiAvg2[i] += (long double)(countEnd.QuadPart - countStart.QuadPart);
 
-				delete[] wynik;
-				towns.loadTownsMap("voyager_brute_input");
+				//delete[] wynik;
+				//towns.loadTownsMap("voyager_brute_input");
 				/*pomiar*/
-				countStart = startTimer();
-				wynik = towns.brute_force();
-				countEnd = endTimer();
+				//countStart = startTimer();
+				//wynik = towns.brute_force();
+				//countEnd = endTimer();
 				
 				/*pomiar*/
-				if (!wynik) {
-					throw new IndexOutOfBoundsException("Incorrect result for salesman brute.");
-				}
-				else
-					bruteWynikiAvg[i] += (long double)(countEnd.QuadPart - countStart.QuadPart);
+				//if (!wynik) {
+					//throw new IndexOutOfBoundsException("Incorrect result for salesman brute.");
+				//}
+				//else
+					//bruteWynikiAvg[i] += (long double)(countEnd.QuadPart - countStart.QuadPart);
 
 				//////////////////////////////////
 		}
 
 			greedyWynikiAvg[i] = greedyWynikiAvg[i] /( tests * freq.QuadPart);
-			greedyWynikiAvg2[i] = greedyWynikiAvg2[i] / (tests * freq.QuadPart);
+			//greedyWynikiAvg2[i] = greedyWynikiAvg2[i] / (tests * freq.QuadPart);
 
 			bruteWynikiAvg[i] = bruteWynikiAvg[i]/ ( tests * freq.QuadPart );
 			
@@ -254,8 +242,6 @@ void run_tests_voyager() {
 		}
 
 		plik_greedy << std::endl;
-		for (int j = 0; j < n; j++)
-			plik_greedy << greedyWynikiAvg2[j] << ";";
 
 		plik_greedy.close();
 		plik_brute.close();
@@ -265,14 +251,96 @@ void run_tests_voyager() {
 
 int main() {
 
-	try {
-		run_tests_knapsack();
-	}
-	catch (std::runtime_error err) {
-		std::cout << "Knapsack problem tests failed...\n";
-	}
-	std::cout << "\n\ndone!\n";
+	RandGraphGen gen = *(new RandGraphGen());
+	Towns town = *(new Towns());
+	Knapsack knapsack = *(new Knapsack());
 
-	std::cin.get();
-	return 0;
+	
+	Menu mainMenu = *(new Menu());
+	{
+			mainMenu.add("MENU GLOWNE");
+			mainMenu.add("***************************************************************************\n\n(r) Odswiez widok menu.");
+			mainMenu.add("\n***PROBLEM PLECAKOWY***");
+			mainMenu.add("(1) Wygeneruj plik z danymi dla problemu plecakowego.");
+			mainMenu.add("(2) Algorytm zachlanny dla problemu plecakowego.");
+			mainMenu.add("(3) Przeglad zupelny dla problemu plecakowego.");
+			mainMenu.add("\n***PROBLEM KOMIWOJAZERA***");
+			mainMenu.add("(4) Wygeneruj plik z danymi dla problemu komiwojazera.");
+			mainMenu.add("(5) Algorytm zachlanny dla problemu komiwojazera.");
+			mainMenu.add("(6) Przeglad zupelny dla problemu komiwojazera.");
+			mainMenu.add("\n(k) Zakoncz program...");
+	}
+
+		bool end = false;
+		bool bad_command = false;
+		std::cout << mainMenu;
+		while (!end) {
+
+
+			if (bad_command)
+			{
+				std::cout << "Bledny numer opcji! Twoj wybor-> ";
+				bad_command = false;
+			}
+			else
+				std::cout << "\nTwoj wybor -> ";
+
+			std::cin.clear();
+			std::cin.sync();
+
+			char decision;
+			std::cin >> decision;
+
+
+			switch (decision) {
+			case 'r': {
+				//odswiez ekran
+				system("cls");
+				std::cout << mainMenu;
+				break;
+			}
+					  //Prim macierz
+			case '1': {
+
+				break;
+			}
+					  //Prim lista
+			case '2': {
+
+				
+				break;
+			}
+					  //Kruskal macierz
+			case '3': {
+		
+				break;
+			}
+					  //Kruskal lista
+			case '4': {
+				
+				break;
+			}
+					  //Dijkstra macierz
+			case '5': {
+			
+				break;
+			}
+					  //Dijkstra lista
+			case '6': {
+			
+				break;
+			}
+					  //Bellman-Ford macierz
+	
+			case 'k': {
+				end = true;
+				break;
+			}
+			default:
+				bad_command = true;
+
+			}
+		}
+
+		return 0;
 }
