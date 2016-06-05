@@ -29,18 +29,19 @@ void run_tests_knapsack() {
 	LARGE_INTEGER freq;
 	QueryPerformanceFrequency(&freq);
 
+	LARGE_INTEGER countStart, countEnd;
 
-	const int n = 6;
+	const int n = 5;
 	const int b = 3;
 	int tests = 100;
 
 	long double bruteWynikiAvg[n][b];
 	long double greedyWynikiAvg[n][b];
 
-	int size_range = 20;
-	int values_range = 20;
-	int N[n] = { 5, 10, 15, 20, 25, 30 };
-	double b_ratio[b] = { 0.25, 0.15, 0.10 };
+	int size_range = 50;
+	int values_range = 50;
+	int N[n] = { 5, 10, 20, 25, 30 };
+	double b_ratio[b] = { 0.50, 0.25, 0.10 };
 	int B[n][b];
 
 	for (int i = 0; i < n; i++)
@@ -57,41 +58,49 @@ void run_tests_knapsack() {
 	{
 		for (int j = 0; j < b; j++)
 		{
-			if (i > 3)
-				tests = 2;
-			std::cout << "Running tests for " << N[i] << " elements and capacity " << B[i][j] << std::endl;
+			RandKnapsackDataGen gen = *(new RandKnapsackDataGen(B[i][j], N[i], size_range, values_range));
+			gen.saveToFile("knapsack_tests_input");
+
+			Knapsack knapsack = *(new Knapsack());
+			
+			if (i == 4)
+				tests = 5;
+			std::cout << "\nRunning tests for " << N[i] << " elements and capacity " << B[i][j] << std::endl;
 			for (int t = 0; t < tests; t++)
 			{
-				LARGE_INTEGER countStart, countEnd;
+				std::cout << ". ";
 				//////// 100 tests //////////////
-				RandKnapsackDataGen gen = *(new RandKnapsackDataGen(B[i][j], N[i], size_range, values_range));
-				gen.saveToFile("knapsack_tests_input");
-
-				Knapsack knapsack = *(new Knapsack());
+				
 				knapsack.loadItemsSet("knapsack_tests_input");
-
+				bool wynik;
 				/*pomiar*/
 				countStart = startTimer();
-				knapsack.greedy_pack(true);
+				wynik = knapsack.greedy_pack(true);
 				countEnd = endTimer();
 				/*pomiar*/
-
-				greedyWynikiAvg[i][j] += (long double)(countEnd.QuadPart - countStart.QuadPart)/freq.QuadPart;
+				if (!wynik) {
+					throw new IndexOutOfBoundsException("Incorrect result for knapsack greedy.");
+				}
+				else
+					greedyWynikiAvg[i][j] += (long double)(countEnd.QuadPart - countStart.QuadPart);
 
 				knapsack.loadItemsSet("knapsack_tests_input");
-
 				/*pomiar*/
 				countStart = startTimer();
-				knapsack.brute_force_pack();
+				wynik = knapsack.brute_force_pack();
 				countEnd = endTimer();
 				/*pomiar*/
-
-				bruteWynikiAvg[i][j] += (long double)(countEnd.QuadPart - countStart.QuadPart) / freq.QuadPart;
+				if (!wynik) {
+					throw new IndexOutOfBoundsException("Incorrect result for salesman brute.");
+				}
+				else
+					bruteWynikiAvg[i][j] += (long double)(countEnd.QuadPart - countStart.QuadPart);
+				
 				//////////////////////////////////
 			}
 
-			greedyWynikiAvg[i][j] = greedyWynikiAvg[i][j] / tests;
-			bruteWynikiAvg[i][j] = greedyWynikiAvg[i][j] / tests;
+			greedyWynikiAvg[i][j] = greedyWynikiAvg[i][j] / (tests*freq.QuadPart);
+			bruteWynikiAvg[i][j] = bruteWynikiAvg[i][j] / (tests*freq.QuadPart);
 		}
 
 		std::fstream plik_greedy;
@@ -128,87 +137,112 @@ void run_tests_knapsack() {
 	return;
 }
 void run_tests_voyager() {
+	
 	LARGE_INTEGER freq;
 	QueryPerformanceFrequency(&freq);
+	
+	LARGE_INTEGER countStart, countEnd;
 
-
-	const int n = 7;
-	int tests = 10;
+	const int n = 6;
+	int tests = 1;
 
 	long double bruteWynikiAvg[n];
 	long double greedyWynikiAvg[n];
+	long double greedyWynikiAvg2[n];
 
 	int values_range = 20;
-	int N_brute[n] = { 3, 5, 8, 10, 12, 14, 16 };
-	int N[n] = { 5, 15, 25, 35, 40, 45, 50 };
+	int N_brute[n] = {  5, 8, 10, 11, 12, 13 };
+	int N[n] = { 5, 50, 100, 500, 1000, 10000 };
 
 	for (int i = 0; i < n; i++)
 	{
 			bruteWynikiAvg[i] = 0;
 			greedyWynikiAvg[i] = 0;	
+			greedyWynikiAvg2[i] = 0;
 	}
+
+	RandGraphGen gen = *(new RandGraphGen());
+	Towns towns = *(new Towns());
 
 	for (int i = 0; i < n; i++)
 	{
-		if (i > 4)
-			tests = 2;
-		std::cout << "Running tests for " << N_brute[i] << " towns for brute_force and " << N[i] <<" for greedy." << std::endl;
+		if (i  == 4)
+			tests = 10;
+		if (i == 5)
+			tests = 1;
+		
+		std::cout << "\nRunning tests for " << N_brute[i] << " towns for brute_force and " << N[i] <<" for greedy." << std::endl;
+		
+		gen.generate(N[i], values_range);
+		gen.saveToFile("voyager_greedy_input");
+
+		gen.generate(N_brute[i], values_range);
+		gen.saveToFile("voyager_brute_input");
+		
+		
+
 		for (int t = 0; t < tests; t++)
 		{
-			LARGE_INTEGER countStart, countEnd;
+				std::cout << ". ";
 			//////// 100 tests //////////////
-			RandGraphGen gen = *(new RandGraphGen());
-			gen.generate(N[i], values_range);
-			gen.saveToFile("voyager_greedy_input");
-			
-			gen.generate(N_brute[i], values_range);
-			gen.saveToFile("voyager_greedy_input");
-
-
-				Towns towns = *(new Towns());
 				towns.loadTownsMap("voyager_greedy_input");
+				int* wynik;
+				/*pomiar*/
+				countStart = startTimer();
+				wynik = towns.greedy(0);
+				countEnd = endTimer();
+				/*pomiar*/
+				if (!wynik) {
+					throw new IndexOutOfBoundsException("Incorrect result for salesman greedy.");
+				}
+				else
+					greedyWynikiAvg[i] += (long double)(countEnd.QuadPart - countStart.QuadPart);
+
+				delete[] wynik;
 
 				/*pomiar*/
 				countStart = startTimer();
-				towns.greedy(0);
+				wynik = towns.greedy(0);
 				countEnd = endTimer();
 				/*pomiar*/
+				if (!wynik) {
+					throw new IndexOutOfBoundsException("Incorrect result for salesman greedy.");
+				}
+				else
+					greedyWynikiAvg2[i] += (long double)(countEnd.QuadPart - countStart.QuadPart);
 
-				greedyWynikiAvg[i] += (long double)(countEnd.QuadPart - countStart.QuadPart) / freq.QuadPart;
-
+				delete[] wynik;
 				towns.loadTownsMap("voyager_brute_input");
 				/*pomiar*/
 				countStart = startTimer();
-				towns.brute_force();
+				wynik = towns.brute_force();
 				countEnd = endTimer();
+				
 				/*pomiar*/
-
-				bruteWynikiAvg[i] += (long double)(countEnd.QuadPart - countStart.QuadPart) / freq.QuadPart;
+				if (!wynik) {
+					throw new IndexOutOfBoundsException("Incorrect result for salesman brute.");
+				}
+				else
+					bruteWynikiAvg[i] += (long double)(countEnd.QuadPart - countStart.QuadPart);
 
 				//////////////////////////////////
 		}
 
-			greedyWynikiAvg[i] = greedyWynikiAvg[i] / tests;
-			bruteWynikiAvg[i] = greedyWynikiAvg[i]/ tests;
-		
+			greedyWynikiAvg[i] = greedyWynikiAvg[i] /( tests * freq.QuadPart);
+			greedyWynikiAvg2[i] = greedyWynikiAvg2[i] / (tests * freq.QuadPart);
 
+			bruteWynikiAvg[i] = bruteWynikiAvg[i]/ ( tests * freq.QuadPart );
+			
+	}
+		
 		std::fstream plik_greedy;
 		std::fstream plik_brute;
-
-		std::stringstream ssgreedy;
-		std::stringstream ssbrute;
 
 		std::string nazwa_greedy;
 		std::string nazwa_brute;
 
-		nazwa_greedy.append("voyager_greedy_");
-		nazwa_brute.append("voyager_brute_");
-
-		ssgreedy << "N_" << N[i] << ".txt";
-		ssbrute << "N_" << N[i] << ".txt";
-
-		nazwa_greedy.append(ssgreedy.str());
-		nazwa_brute.append(ssbrute.str());
+		nazwa_greedy.append("voyager_greedy.txt");
+		nazwa_brute.append("voyager_brute.txt.");
 
 		plik_greedy.open(nazwa_greedy, std::ios::out);
 		plik_brute.open(nazwa_brute, std::ios::out);
@@ -216,19 +250,29 @@ void run_tests_voyager() {
 		for (int j = 0; j < n; j++)
 		{
 			plik_greedy << greedyWynikiAvg[j] << ";";
-			plik_brute << bruteWynikiAvg[i] << ";";
+			plik_brute << bruteWynikiAvg[j] << ";";
 		}
+
+		plik_greedy << std::endl;
+		for (int j = 0; j < n; j++)
+			plik_greedy << greedyWynikiAvg2[j] << ";";
 
 		plik_greedy.close();
 		plik_brute.close();
-	}
 	///TESTING LOOP END
 	return;
 }
 
 int main() {
-	
-	run_tests_knapsack();
-	run_tests_voyager();
+
+	try {
+		run_tests_knapsack();
+	}
+	catch (std::runtime_error err) {
+		std::cout << "Knapsack problem tests failed...\n";
+	}
+	std::cout << "\n\ndone!\n";
+
+	std::cin.get();
 	return 0;
 }

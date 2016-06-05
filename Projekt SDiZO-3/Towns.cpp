@@ -188,13 +188,15 @@ int* Towns::greedy(int start)
 
 	/*Tablica odwiedzonych*/
 	bool* visited = new bool[towns_number];
-	for (int i = 0; i < towns_number; i++)
-		visited[i] = false;
-
 	/*Tablica na wynik*/
 	int* result = new int[towns_number];
+	
 	for (int i = 0; i < towns_number; i++)
+	{
+		visited[i] = false;
 		result[i] = -1;
+	}
+	
 
 	visited[start] = true;
 	result[0] = start;
