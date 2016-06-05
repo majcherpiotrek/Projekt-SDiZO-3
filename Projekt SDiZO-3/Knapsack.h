@@ -25,8 +25,9 @@ private:
 			next = nullptr;
 		}
 		~sackElement() {
- 			if (this->next != nullptr)
+			if (this->next != nullptr) 
 				delete next;
+
 		}
 	};
 	

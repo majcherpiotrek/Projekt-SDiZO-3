@@ -222,11 +222,13 @@ bool Knapsack::brute_force_pack()
 		return false;
 	}
 
-	if (itemsSet_size >= 64)
+	if (itemsSet_size >= 41)
 	{
-		std::cout << "Blad! Zbyt wiele przedmiotow do zapakowania. Wiecej niz 2^63 - 1 mozliwosci dla algorytmu brute_force\nprzekracza zakres long long int'a!\n";
+		std::cout << "Blad! Zbyt wiele przedmiotow do zapakowania!\n";
 		return false;
 	}
+
+
 	unsigned long long int combinations = (1 << itemsSet_size);
 	
 	unsigned long long int currentBest = 0;
@@ -246,11 +248,12 @@ bool Knapsack::brute_force_pack()
 		int sum_value = 0;
 		
 		bool fits = false;
-		
+		unsigned long long int current_perm;
 		/*Przechodzimy po wszystkich przedmiotach, ¿eby sprawdziæ, czy nale¿¹ do danej kombinacji*/
 		for (int k = 0; k < itemsSet_size; k++)
 		{
-			unsigned long long int current_perm = i;
+			
+			current_perm = i;
 			/*
 			Sprawdzamy przynale¿noœæ
 			-> musimy dostaæ siê do k-tego bitu permutations, 
