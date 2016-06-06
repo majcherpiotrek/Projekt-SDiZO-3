@@ -53,6 +53,7 @@ public:
 	bool greedy_pack(bool ratio_mode);
 	bool brute_force_pack();
 	
+	void printItemsSet();
 	std::string toString();
 	void saveToFile(std::string fileName);
 	friend std::ostream & operator << (std::ostream & output, Knapsack & knapsack);

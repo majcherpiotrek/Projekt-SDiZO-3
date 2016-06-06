@@ -276,66 +276,231 @@ int main() {
 		std::cout << mainMenu;
 		while (!end) {
 
+			bool badInsideCommand = false;
+			std::cin.clear();
+			std::cin.sync();
+			char decision;
 
 			if (bad_command)
 			{
 				std::cout << "Bledny numer opcji! Twoj wybor-> ";
 				bad_command = false;
+
+				std::cin >> decision;
 			}
-			else
+			else {
 				std::cout << "\nTwoj wybor -> ";
+				std::cin >> decision;
+			}
+				
 
-			std::cin.clear();
-			std::cin.sync();
+			
+			
+			
+			//fflush(stdin);
 
-			char decision;
-			std::cin >> decision;
+			
+			
+			
 
 
 			switch (decision) {
+					 
+					//refresh
 			case 'r': {
 				//odswiez ekran
 				system("cls");
 				std::cout << mainMenu;
 				break;
 			}
-					  //Prim macierz
+					 
+					  //Generowanie przedmiotów do plecaka
 			case '1': {
+				
+				int t = 2;
+				char* teksty[] = { "pojemnosc plecaka", "liczbe przedmiotow" };
+
+				int* val = new int[t];
+				bool blad = false;
+				for (int i = 0; i < t; i++)
+				{
+					std::cout << "Podaj " << teksty[i] << ": ";
+
+					std::cin >> val[i];
+
+					if (val[i] <= 0)
+					{
+						std::cout << "BLAD! Pojemnosc nie moze przyjac takiej wartosci!\n";
+						blad = true;
+						break;
+					}
+				}
+				if (blad)
+					break;
+				
+				int wagi = (int)(val[0] * 0.75);
+				int wartosci = 50;
+
+				RandKnapsackDataGen knapgen = *(new RandKnapsackDataGen(val[0], val[1], wagi, wartosci));
+				std::cout << "Podaj nazwe pliku do zapisu:  ";
+				std::string nazwa;
+				std::cin >> nazwa;
+
+				try {
+					knapgen.saveToFile(nazwa);
+				}
+				catch (std::runtime_error err) {
+					std::cout << "ZAPIS NIEUDANY! " << err.what() << std::endl;
+					break;
+				}
+				std::cout << "Zapis udany!\n";
 
 				break;
 			}
-					  //Prim lista
+					  //Algorytm zach³anny plecak
 			case '2': {
 
-				
+				std::cout << "Podaj nazwe pliku do odczytu zbioru przedmiotow:  ";
+				std::string nazwa;
+				std::cin >> nazwa;
+
+				try {
+					knapsack.loadItemsSet(nazwa);
+				}
+				catch (std::runtime_error err) {
+					std::cout << "Odczyt nieudany!\n";
+					std::cout << err.what();
+					break;
+				}
+				std::cout << "Odczyt udany!\n";
+				knapsack.printItemsSet();
+				std::cout<<"Uruchamiam algorytm zachlanny!\n";
+				if(knapsack.greedy_pack(true))
+					std::cout << "Wynik:\n" << knapsack;
 				break;
 			}
-					  //Kruskal macierz
+					  //Przegl¹d zupe³ny plecak
 			case '3': {
-		
+				std::cout << "Podaj nazwe pliku do odczytu zbioru przedmiotow:  ";
+				std::string nazwa;
+				std::cin >> nazwa;
+
+				try {
+					knapsack.loadItemsSet(nazwa);
+				}
+				catch (std::runtime_error err) {
+					std::cout << "Odczyt nieudany!\n";
+					std::cout << err.what();
+					break;
+				}
+				std::cout << "Odczyt udany!\n";
+				knapsack.printItemsSet();
+				std::cout << "Uruchamiam algorytm zachlanny!\n";
+				if (knapsack.brute_force_pack())
+					std::cout << "Wynik:\n" << knapsack;
 				break;
 			}
-					  //Kruskal lista
+					  //Generowanie mapy miast
 			case '4': {
 				
+				int N;
+				std::cout << "Podaj liczbe miast: ";
+
+				std::cin >> N;
+
+				if (N <= 0)
+				{
+					std::cout << "BLAD! Pojemnosc nie moze przyjac takiej wartosci!\n";
+					break;
+				}
+		
+				gen.generate(N, 2 * N);
+				
+				std::cout << "Podaj nazwe pliku do zapisu:  ";
+				std::string nazwa;
+				std::cin >> nazwa;
+
+				try {
+					gen.saveToFile(nazwa);
+				}
+				catch (std::runtime_error err) {
+					std::cout << "ZAPIS NIEUDANY! " << err.what() << std::endl;
+					break;
+				}
+				std::cout << "Zapis udany!\n";
 				break;
 			}
-					  //Dijkstra macierz
+					  //Algorytm zach³anny komi
 			case '5': {
-			
+				std::cout << "Podaj nazwe pliku do odczytu mapy miast:  ";
+				std::string nazwa;
+				std::cin >> nazwa;
+
+				try {
+					town.loadTownsMap(nazwa);
+				}
+				catch (std::runtime_error err) {
+					std::cout << "Odczyt nieudany!\n";
+					std::cout << err.what();
+					break;
+				}
+				std::cout << "Odczyt udany!" << town << "\nUruchamiam algorytm zachlanny!\n";
+				int* wynik = town.greedy(0);
+				if (wynik) {
+					std::cout << "Wynik:\n";
+						for (int i = 2; i < wynik[0]+2; i++)
+						{
+							if (i < wynik[0] + 1)
+								std::cout << wynik[i] << " -> ";
+							else
+								std::cout << wynik[i] << std::endl;
+						}
+						std::cout << "Koszt = " << wynik[1] << std::endl;
+				}
+				else 
+					std::cout << "Blad algorytmu!\n";
+				
 				break;
 			}
-					  //Dijkstra lista
+					  //Przegl¹d zupe³ny komi
 			case '6': {
-			
+				std::cout << "Podaj nazwe pliku do odczytu mapy miast:  ";
+				std::string nazwa;
+				std::cin >> nazwa;
+
+				try {
+					town.loadTownsMap(nazwa);
+				}
+				catch (std::runtime_error err) {
+					std::cout << "Odczyt nieudany!\n";
+					std::cout << err.what();
+					break;
+				}
+				std::cout << "Odczyt udany!" << town << "\nUruchamiam przeglad zupelny!\n";
+				int* wynik = town.brute_force();
+				if (wynik) {
+					std::cout << "Wynik:\n";
+
+					for (int i = 2; i < wynik[0]+2; i++)
+					{
+						if (i < wynik[0] + 1)
+							std::cout << wynik[i] << " -> ";
+						else
+							std::cout << wynik[i] << std::endl;
+					}
+					std::cout << "Koszt = " << wynik[1] << std::endl;
+				}
+				else
+					std::cout << "Blad algorytmu!\n";
+
 				break;
 			}
-					  //Bellman-Ford macierz
-	
+
 			case 'k': {
 				end = true;
 				break;
 			}
+			
 			default:
 				bad_command = true;
 

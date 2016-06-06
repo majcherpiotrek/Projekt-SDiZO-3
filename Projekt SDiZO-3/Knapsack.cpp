@@ -222,12 +222,11 @@ bool Knapsack::brute_force_pack()
 		return false;
 	}
 
-	if (itemsSet_size >= 41)
+	if (itemsSet_size > 27)
 	{
-		std::cout << "Blad! Zbyt wiele przedmiotow do zapakowania!\n";
+		std::cout << "Blad! Zbyt wiele przedmiotow do zapakowania! (max 27 dla przegl¹du zupe³nego)\n";
 		return false;
 	}
-
 
 	unsigned long long int combinations = (1 << itemsSet_size);
 	
@@ -319,6 +318,19 @@ bool Knapsack::brute_force_pack()
 	}
 	
 	return true;
+}
+
+void Knapsack::printItemsSet()
+{
+	if (itemsSet == nullptr)
+		return;
+	std::cout << "Zbior przedmiotow (waga,wartosc): {";
+	for (int i = 0; i < itemsSet_size; i++)
+	{
+		std::cout << " (" << itemsSet[i].weight << ", " << itemsSet[i].value << ") ";
+	}
+	std::cout << "}\n";
+	return;
 }
 
 std::string Knapsack::toString()

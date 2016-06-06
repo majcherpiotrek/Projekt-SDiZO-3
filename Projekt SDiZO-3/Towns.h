@@ -11,7 +11,6 @@ class Towns
 private:
 
 	int towns_number;
-
 	int** neighboursMatrix;
 	
 	void swap(int* a, int* b) {

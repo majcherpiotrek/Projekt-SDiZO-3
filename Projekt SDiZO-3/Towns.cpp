@@ -202,13 +202,14 @@ int* Towns::greedy(int start)
 	result[0] = start;
 
 	int currentTown = start;
-
+	
 	/*W co najwy¿ej N-1 krokach dostaniemy rozwi¹zanie*/
 	for (int i = 1; i < towns_number; i++)
 	{
 		
 		int shortest_dist = INT_MAX;
 		int next_town = -1;
+		
 
 		for (int k = 0; k < towns_number; k++)
 		{
@@ -233,12 +234,27 @@ int* Towns::greedy(int start)
 		if (!visited[i])
 			return nullptr;
 	}
-
+	int sum_dist = 0;
+	for (int i = 0; i < towns_number - 1; i++)
+		sum_dist += neighboursMatrix[result[i]][result[i + 1]];
+	int* buf = new int[towns_number];
+	memcpy(buf, result, towns_number*sizeof(int));
+	delete[] result;
+	result = new int[towns_number + 2];
+	result[0] = towns_number;
+	result[1] = sum_dist;
+	memcpy(result + 2, buf, towns_number*sizeof(int));
+	delete[] buf;
 	return result;
 }
 
 int * Towns::brute_force()
 {
+	if (towns_number > 10)
+	{
+		std::cout << "Zbyt wiele miast! (max 10)\n";
+		return nullptr;
+	}
 	int* result = new int[towns_number];
 
 	/*Tabela z indeksami do robienia permutacji*/
@@ -252,6 +268,17 @@ int * Towns::brute_force()
 
 	computePermutations(towns_number - 1, permutations, towns_number, neighboursMatrix, &minValue, result);
 
+	int sum_dist = 0;
+	for (int i = 0; i < towns_number - 1; i++)
+		sum_dist += neighboursMatrix[result[i]][result[i + 1]];
+	int* buf = new int[towns_number];
+	memcpy(buf, result, towns_number*sizeof(int));
+	delete[] result;
+	result = new int[towns_number + 2];
+	result[0] = towns_number;
+	result[1] = sum_dist;
+	memcpy(result + 2, buf, towns_number*sizeof(int));
+	delete[] buf;
 	return result;
 }
 
